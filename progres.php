@@ -1,78 +1,100 @@
 <?php
 include "koneksi.php";
 
-if (!isset($_GET['id'])) { die("ID siswa tidak ditemukan."); }
+if (!isset($_GET['id'])) { 
+    die("ID siswa tidak ditemukan."); 
+}
 
 $id = (int) $_GET['id'];
 
 $q = mysqli_query($conn, "SELECT * FROM data_siswa WHERE id_siswa=$id");
-if (!mysqli_num_rows($q)) { die("Data siswa tidak ditemukan."); }
+if (!mysqli_num_rows($q)) { 
+    die("Data siswa tidak ditemukan."); 
+}
 $siswa = mysqli_fetch_assoc($q);
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progres Hafalan Siswa</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progres Hafalan Siswa</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <style>
-        body {
-            background: linear-gradient(135deg, #4e73df, #1cc88a);
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            min-height: 100vh;
-        }
+<style>
+body {
+    background: linear-gradient(135deg, #4e73df, #1cc88a);
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    min-height: 100vh;
+}
 
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-            max-width: 1100px;
-            margin-left: auto;
-            margin-right: auto;
-        }
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+}
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #333;
+}
 
-        .table thead th {
-            background-color: #4e73df;
-            color: #fff;
-            text-align: center;
-        }
+.table thead th {
+    background-color: #4e73df;
+    color: #fff;
+    text-align: center;
+}
 
-        .table td, .table th {
-            text-align: center;
-            vertical-align: middle;
-        }
+.table tbody td {
+    text-align: center;
+    vertical-align: middle;
+}
 
-        .btn-back {
-            display: block;
-            width: 150px;
-            margin: 20px auto 0;
-            padding: 10px;
-            text-align: center;
-            background-color: #6c757d;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
+.badge {
+    font-size: 0.9rem;
+    padding: 0.4em 0.6em;
+}
 
-        .btn-back:hover {
-            background-color: #5a6268;
-        }
-    </style>
+.btn-back {
+    display: block;
+    width: 150px;
+    padding: 10px;
+    text-align: center;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-back:hover {
+    background-color: #5a6268;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.85rem;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.d-flex.gap-2 a {
+    width: 150px;
+}
+</style>
 </head>
 <body>
 
@@ -90,6 +112,7 @@ $siswa = mysqli_fetch_assoc($q);
                     <th>Guru Pemeriksa</th>
                     <th>Catatan Guru</th>
                     <th>Status Hafalan</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -98,12 +121,12 @@ $siswa = mysqli_fetch_assoc($q);
                 "SELECT p.*, s.nama_surah 
                  FROM proses_hafalan p
                  JOIN surah s ON p.id_surah = s.id_surah
-                 WHERE id_siswa=$id 
-                 ORDER BY tanggal_update DESC"
+                 WHERE p.id_siswa=$id 
+                 ORDER BY p.tanggal_update DESC"
             );
 
             if (!$data || mysqli_num_rows($data) == 0) {
-                echo "<tr><td colspan='7' class='text-center'>Belum ada hafalan</td></tr>";
+                echo "<tr><td colspan='8' class='text-center'>Belum ada hafalan</td></tr>";
             } else {
                 while ($d = mysqli_fetch_assoc($data)) { ?>
                     <tr>
@@ -124,6 +147,17 @@ $siswa = mysqli_fetch_assoc($q);
                                 }
                             ?>
                         </td>
+                        <td>
+                            <a href="edit_progres.php?id_siswa=<?= $d['id_siswa']; ?>&id_surah=<?= $d['id_surah']; ?>&ayat_mulai=<?= $d['ayat_mulai']; ?>&ayat_sampai=<?= $d['ayat_sampai']; ?>" 
+                               class="btn btn-warning btn-sm">
+                               Edit
+                            </a>
+                            <a href="hapus_progres.php?id_siswa=<?= $d['id_siswa']; ?>&id_surah=<?= $d['id_surah']; ?>&ayat_mulai=<?= $d['ayat_mulai']; ?>&ayat_sampai=<?= $d['ayat_sampai']; ?>" 
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Yakin ingin menghapus data hafalan ini?');">
+                               Hapus
+                            </a>
+                        </td>
                     </tr>
                 <?php } 
             }
@@ -132,7 +166,10 @@ $siswa = mysqli_fetch_assoc($q);
         </table>
     </div>
 
-    <a href="data_siswa.php" class="btn-back">Kembali</a>
+    <div class="d-flex justify-content-center gap-2 mt-3">
+        <a href="data_siswa.php" class="btn btn-secondary">Kembali</a>
+        <a href="tambah_progres.php?id_siswa=<?= $id; ?>" class="btn btn-success">Tambah Hafalan</a>
+    </div>
 </div>
 
 <!-- Bootstrap JS -->
